@@ -14,7 +14,8 @@ export const getAllTasks = async () => {
 export const addTask = async (task) => {
     try {
         const res = await fetch("", {
-            method: "POST"
+            method: "POST",
+            body: JSON.stringify(task)
         });
         const data = await res.json();
         return data;

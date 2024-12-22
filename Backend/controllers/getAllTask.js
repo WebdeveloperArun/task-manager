@@ -3,7 +3,7 @@ import Task from "../models/task.model.js";
 const getAllTasks = async (req, res) => {
     try {
         const tasks = await Task.find();
-        if (tasks == []) {
+        if (tasks && tasks.length > 0) {
             res.json(tasks);
         } else {
             res.status(404).json({ message: "No tasks found" });
