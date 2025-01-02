@@ -6,11 +6,12 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const corsOptions = {
- origin: "http://localhost:3000",
- credentials: true,
+    origin: "http://localhost:5173",
+    credentials: true,
 };
 
 const app = express();
+
 
 app.use(cors(corsOptions));
 app.use(express.json());

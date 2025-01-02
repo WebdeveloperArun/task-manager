@@ -2,7 +2,10 @@ import Task from "../models/task.model.js";
 
 const getAllTasks = async (req, res) => {
     try {
+        
         const tasks = await Task.find();
+        
+        
         if (tasks && tasks.length > 0) {
             res.json(tasks);
         } else {
