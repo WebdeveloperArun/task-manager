@@ -1,21 +1,26 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { TaskContext } from "../context/taskContext";
-import { completeTask, deleteTask } from "../api/taskApi";
+import { completeTask, deleteTask, updateTask } from "../api/taskApi";
 
 const TaskList = () => {
- const { tasks, removeTask, addTaskToContext } = useContext(TaskContext);
-
+ const { tasks, removeTask, addTaskToContext, completeTaskContext, updateTaskInContext } =
+  useContext(TaskContext);
  const [checkbox, setCheckbox] = useState({
   taskId: null,
-  completed: false,
  });
+ const [editTaskId, setEditTaskId] = useState(null);
+ const [editTaskValue, setEditTaskValue] = useState("");
 
  useEffect(() => {
   async function setCompleted() {
    if (checkbox.taskId !== null) {
+    console.log("checkbox.taskId", checkbox.taskId);
+
     const todo = await completeTask(checkbox.taskId);
     if (todo) {
-     addTaskToContext(todo);
+     console.log("todo", todo);
+     completeTaskContext(todo._id);
+     setCheckbox({ taskId: null });
     }
    }
    return;
@@ -27,6 +32,22 @@ const TaskList = () => {
   const res = await deleteTask(todoId);
   if (res) {
    removeTask(todoId);
+  }
+ };
+
+ const startEditing = (todo) => {
+  setEditTaskId(todo._id);
+  setEditTaskValue(todo.task);
+ };
+
+ const saveEditTask = async (todoId) => {
+  const updatedTask = await updateTask(editTaskValue, todoId);
+  console.log("updatedTask", updatedTask);
+  
+  if (updatedTask) {
+   updateTaskInContext(updatedTask);
+   setEditTaskId(null);
+   setEditTaskValue("");
   }
  };
 
@@ -69,11 +90,9 @@ const TaskList = () => {
          <div className="flex items-center">
           <input
            id="checkbox-table-search-1"
-           value={checkbox.completed}
-           onChange={() =>
-            setCheckbox({ taskId: todo._id, completed: !checkbox.completed })
-           }
+           onChange={() => setCheckbox({ taskId: todo._id })}
            type="checkbox"
+           defaultChecked={todo.completed}
            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
           />
           <label htmlFor="checkbox-table-search-1" className="sr-only">
@@ -83,18 +102,37 @@ const TaskList = () => {
         </td>
         <th
          scope="row"
-         className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+         className={`px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white ${
+          todo.completed ? "line-through" : ""
+         }`}
         >
          {todo.task}
         </th>
 
         <td className="bg-gray-300 flex items-center px-6 py-4">
-         <a
-          href="#"
-          className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-         >
-          Edit
-         </a>
+         {editTaskId === todo._id ? (
+          <>
+           <input
+            type="text"
+            value={editTaskValue}
+            onChange={(e) => setEditTaskValue(e.target.value)}
+            className="border rounded p-1"
+           />
+           <button
+            onClick={() => saveEditTask(todo._id)}
+            className="ml-2 text-blue-600"
+           >
+            Save
+           </button>
+          </>
+         ) : (
+          <button
+           onClick={() => startEditing(todo)}
+           className="font-medium text-blue-600 hover:underline"
+          >
+           Edit
+          </button>
+         )}
         </td>
         <td className="bg-slate-600 px-6 py-4">
          <button

@@ -68,11 +68,11 @@ export const deleteTask = async (taskId) => {
 export const updateTask = async (newTask, taskId) => {
     try {
         const res = await fetch(`http://localhost:3000/api/update-task/${taskId}`, {
-            method: "PATCH",
+            method: "POST",
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(newTask),
+            body: JSON.stringify({task: newTask}),
         });
         const data = await res.json();
         return data;
